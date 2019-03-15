@@ -308,7 +308,7 @@ begin
       NewObject := TIfBlock.Create(CurrentObject);
       FIfs.Add(NewObject);
       AddItem(NewObject);
-      CurrentObject := NewObjec
+      CurrentObject := NewObject;
       CurrentObject.Text := Trim(Copy(TagText, Pos(FIfTag, TagText) + Length(FIfTag) + 1, Length(TagText)));
       CurPos := TagEnd + Length(FEndTag);
       Continue;
