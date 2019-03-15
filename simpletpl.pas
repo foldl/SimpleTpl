@@ -272,6 +272,14 @@ var
   CurPos: Integer;
   TagStart, TagEnd: Integer;
   TagText: String;
+
+  procedure AddItem(ABlock: TBlock);
+  begin
+    if (CurrentObject is TIfBlock) and (TIfBlock(CurrentObject).IsElseIf) then
+      TIfBlock(CurrentObject).ElseItems.Add(ABlock)
+    else
+      CurrentObject.Items.Add(ABlock);
+  end;
 begin
   CurrentObject := ABlock;
   CurPos := 1;
@@ -292,18 +300,15 @@ begin
     if TagStart > CurPos then
     begin
       NewObject := TBlock.Create(CurrentObject);
-      if (CurrentObject is TIfBlock) and (TIfBlock(CurrentObject).IsElseIf) then
-        TIfBlock(CurrentObject).ElseItems.Add(NewObject)
-      else
-        CurrentObject.Items.Add(NewObject);
+      AddItem(NewObject);
       NewObject.Text := Copy(ATemplate, CurPos, TagStart - CurPos);
     end;
     if Pos(FIfTag + ' ', TagText) = 1 then
     begin
       NewObject := TIfBlock.Create(CurrentObject);
       FIfs.Add(NewObject);
-      CurrentObject.Items.Add(NewObject);
-      CurrentObject := NewObject;
+      AddItem(NewObject);
+      CurrentObject := NewObjec
       CurrentObject.Text := Trim(Copy(TagText, Pos(FIfTag, TagText) + Length(FIfTag) + 1, Length(TagText)));
       CurPos := TagEnd + Length(FEndTag);
       Continue;
@@ -335,10 +340,7 @@ begin
         NewObject := NewObject.Parent;
       end;
       NewObject := TLoopBlock.Create(CurrentObject);
-      if (CurrentObject is TIfBlock) and (TIfBlock(CurrentObject).IsElseIf) then
-        TIfBlock(CurrentObject).ElseItems.Add(NewObject)
-      else
-        CurrentObject.Items.Add(NewObject);
+      AddItem(NewObject);
       NewObject.Text := TagText;
       CurrentObject := NewObject;
       FLoops.Add(CurrentObject);
@@ -371,15 +373,12 @@ begin
       TagText := Trim(Copy(TagText, Pos(FPartTag, TagText) + Length(FPartTag) + 1, Length(TagText)));
       NewObject := TPartBlock.Create(CurrentObject);
       NewObject.Text := TagText;
-      CurrentObject.Items.Add(NewObject);
+      AddItem(NewObject);
       CurPos := TagEnd + Length(FEndTag);
       Continue;
     end;
     NewObject := TValueBlock.Create(CurrentObject);
-    if (CurrentObject is TIfBlock) and (TIfBlock(CurrentObject).IsElseIf) then
-      TIfBlock(CurrentObject).ElseItems.Add(NewObject)
-    else
-      CurrentObject.Items.Add(NewObject);
+    AddItem(NewObject);
     NewObject.Text := TagText;
     FValues.Add(NewObject);
     CurPos := TagEnd + Length(FEndTag);
